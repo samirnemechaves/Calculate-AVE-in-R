@@ -1,0 +1,38 @@
+library(lavaan)
+library(psych)
+
+model2 <- '
+s =~ S3 + S4 + S6
+a =~ a1 + a2 + a3 + a5 + a6
+D =~ D3 + D5
+H =~ H1 + H2 + H3 + H4 + H5 + H6 + H7
+P =~ P1 + P2 + P4 + P5
+I =~ I1 + I2 + I3 + I4
+
+#regresiones
+I ~ s + a + H + P + D
+'
+fit2<-sem(model2,data=data,estimator="MLM",se="robust")
+fitMeasures(fit2)
+
+
+
+#Calculate average variance extracted (ave)
+condisc <- function(x){
+  std.loadings<- inspect(x, what="std")$lambda
+  #std.loadings
+  std.loadings[std.loadings==0] <- NA
+  #std.loadings
+  std.loadings <- std.loadings^2
+  #std.loadings
+  ave <- colMeans(std.loadings, na.rm=TRUE)
+  #ave
+  #factor correlation matrix
+  fcor <- lavInspect(x, "cor.lv")
+  #fcor
+  sqfcor <- fcor^2
+  #sqfcor
+  list(Squared_Factor_Correlation=round(sqfcor, digits=3),
+       Average_Variance_Extracted=round(ave, digits=3))
+}
+condisc(fit2)
